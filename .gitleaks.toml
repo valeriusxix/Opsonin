@@ -1,0 +1,7 @@
+[extend]
+useDefault = true
+
+[[rules]]
+id = "bip39-mnemonic-env"
+description = "BIP-39 mnemonic assigned in a file"
+regex = '''(?i)mnemonic\s*[=:]\s*["']?([a-z]+\s){11,23}[a-z]+'''

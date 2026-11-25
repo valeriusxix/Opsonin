@@ -1,0 +1,32 @@
+# deps / build
+node_modules
+dist
+dist-ssr
+*.tsbuildinfo
+coverage
+
+# secrets: NEVER commit
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+keys/
+**/secrets/
+
+# foundry
+contracts/out
+contracts/cache
+contracts/broadcast/*/31337
+contracts/lib
+
+# logs / editors
+logs
+*.log
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.local
+playwright-report
+test-results

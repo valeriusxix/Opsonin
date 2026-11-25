@@ -1,0 +1,21 @@
+{
+  "name": "@opsonin/scripts",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "license": "Apache-2.0",
+  "scripts": {
+    "typecheck": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "@qorechain/evm": "0.14.0",
+    "@qorechain/sdk": "0.14.0",
+    "dotenv": "^18.0.10",
+    "viem": "^2.58.6"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}
