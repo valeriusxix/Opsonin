@@ -168,6 +168,9 @@ importers:
 
   scripts:
     dependencies:
+      '@cosmjs/stargate':
+        specifier: ^0.39.0
+        version: 0.39.0
       '@qorechain/evm':
         specifier: 0.14.0
         version: 0.14.0(viem@2.58.6(typescript@7.0.2))

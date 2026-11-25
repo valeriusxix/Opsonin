@@ -1,5 +1,5 @@
 /** Chain config: read from the SDK preset, overridable by env. Never hard-code chain params elsewhere. */
-import "dotenv/config";
+import "./env.ts";
 import { NETWORKS } from "@qorechain/sdk";
 
 const t = NETWORKS.testnet;
