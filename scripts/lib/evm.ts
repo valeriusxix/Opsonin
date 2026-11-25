@@ -27,7 +27,7 @@ export async function openWindow(a: UnifiedAccount, p: { blocks: number; maxTxs:
     maxValue: p.maxValueUqor.toString(),
     ...(p.allowedTargets ? { allowedTargets: p.allowedTargets } : {}),
   });
-  const res = await sendNative(a, [m], 300_000, "hybrid");
+  const res = await sendNative(a, [m], 500_000, "hybrid");
   if (res.code !== 0) throw new Error(`open window failed code=${res.code} ${res.rawLog}`);
   return res;
 }

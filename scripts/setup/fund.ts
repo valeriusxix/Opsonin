@@ -14,7 +14,8 @@ if (!(await pqcStatus(owner) as any).registered) throw new Error("register OWNER
 for (const [role, qor] of [["SENTINEL", s], ["RELAYER", r]] as const) {
   const to = await loadAccount(role);
   const amount = String(BigInt(Math.round(Number(qor) * 1e6)));
-  const res = await sendNative(owner, [{ typeUrl: "/cosmos.bank.v1beta1.MsgSend", value: { fromAddress: owner.cosmos, toAddress: to.cosmos, amount: [{ denom: chain.denom, amount }] } }], 200_000);
+  if (amount === "0") { console.log(`${role}: skipped`); continue; }
+  const res = await sendNative(owner, [{ typeUrl: "/cosmos.bank.v1beta1.MsgSend", value: { fromAddress: owner.cosmos, toAddress: to.cosmos, amount: [{ denom: chain.denom, amount }] } }], 400_000);
   console.log(`${role}: sent ${qor} QOR tx=${res.transactionHash} code=${res.code}`);
 }
 console.log("OWNER balance now", Number(await balanceUqor(owner.cosmos)) / 1e6, "QOR");

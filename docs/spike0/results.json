@@ -1,0 +1,45 @@
+{
+  "network": "qorechain-diana",
+  "startedAt": "2026-11-25T19:40:48.659Z",
+  "owner": {
+    "cosmos": "qor192xrlfhng0l36pdz5jjud3x25lde3g5xksvyxe",
+    "evm": "0x2A8C3fA6f343ff1D05A2A4a5c6c4Caa7dB98a286"
+  },
+  "hybridTx_openUnscopedWindow": "9700A1CD2545EA3ED667C530E0C395EFC74F8EEE19D7CDA9CA5AD7165352AB0D",
+  "deploy": {
+    "tx": "0xf0fa5ab8926c86186c2205467a735a08e264a62624a8285c1ab1d9917eb189a5",
+    "contract": "0x13c334451d0be49530eaa3dcb7aef97700aea82c",
+    "status": "success",
+    "gasUsed": "676529"
+  },
+  "hybridTx_openScopedWindow": "4DD4B3BB7B8D61D676C5BD0E3E5C98AF7C4BD0185081F4AEF53671D310391CA7",
+  "inWindow": {
+    "ping": "0x131c7b4638ca52e807efda70742d16ec9eee64919593923424e425550f538497",
+    "validTx": "0x6562426a7a983d28aec49dcdbf7b4162c482262568f429ba218735f184684005",
+    "validResult": true,
+    "tamperedTx": "0x6648b0ee38ddf0b5012e1a67d05769193c69a909ce0bc14deb1b0efa3acf6a8a",
+    "tamperedResult": false,
+    "gasCheckAndRecord": "260188"
+  },
+  "nonListed": {
+    "kind": "exhausted",
+    "message": "Missing or invalid parameters. | Double check you have provided the correct parameters. | "
+  },
+  "windowAfter": {
+    "found": true,
+    "live": true,
+    "openedHeight": "10745938",
+    "expiryHeight": "10746538",
+    "maxTxs": "6",
+    "usedTxs": "3",
+    "maxValue": "3000000",
+    "usedValue": "158837",
+    "remainingBlocks": "588",
+    "remainingTxs": "3",
+    "remainingValue": "2841163",
+    "nativeOnly": false,
+    "allowedTargets": [
+      "0x13c334451d0be49530eaa3dcb7aef97700aea82c"
+    ]
+  }
+}

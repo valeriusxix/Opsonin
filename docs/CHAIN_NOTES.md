@@ -56,7 +56,7 @@ D = `https://docs.qorechain.io`. Last updated: 25 Nov 2026.
 - **Opening advances the nonce** (Cosmos sequence = EVM nonce). Order: open → read nonce → sign. Replaces any existing window. [SDK] · [DOCS]
 - Bounds: `blocks` 1–17,280; `maxTxs` 1–1,000; `maxValue` > 0 uqor = value **+ gasLimit × maxFeePerGas** of every admitted tx (wei→uqor rounds up; `evmWindowCost`). [SDK] · [DOCS]
 - Scope: `nativeOnly`; `allowedTargets` ≤ 16, **refuses contract creation**; v3.2.8 adds `validators`, `stakingValidators`, `ibcReceivers` (each ≤ 16). Standard precompile methods are deny-by-default through a window. [SDK] · [DOCS]
-- `allowedTargets` is checked against the **tx recipient only**; calls a contract makes to `0x…0a01/0a02` are not checked, so do not list them. [FEST] build.qorechain.io/faq · **[LIVE pending: spike0/03]**
+- `allowedTargets` is checked against the **tx recipient only**; calls a contract makes to `0x…0a01/0a02` are not checked, so do not list them. [FEST] build.qorechain.io/faq · **[LIVE 25 Nov] confirmed**. A non-listed recipient is refused with code 27 and text "does not list … as an allowed recipient".
 - Failed/reverted txs still consume a slot and budget. Errors (codespace `pqc`): 26 no window / no PQC key, 27 exhausted, 28 invalid bounds, 62 delegated account. SDK `classifyEvmWindowRejection` → `"no-pqc-key" | "no-window" | "exhausted" | "invalid"`. [DOCS] · [SDK]
 - Query: `GET /qorechain/pqc/v1/evm_window/{address}`; SDK `fetchEvmWindow({ rest, address })` → `{found, live, remainingBlocks, remainingTxs, remainingValue, allowedTargets, …}` (bigint). [SDK]
 - SDK never auto-opens a window (by design). [SDK]
@@ -84,11 +84,21 @@ D = `https://docs.qorechain.io`. Last updated: 25 Nov 2026.
 - Audit evidence: QCAI reports in `docs/audit/` + `docs/AUDIT.md`.
 - Follow-on grants paid in QOR against milestones from January 2027.
 
-## Spike 0 status (25 Nov)
+## Spike 0 result (25 Nov 2026): PASS, no fallback needed
 
-| Criterion | Status |
-|---|---|
-| 1 funded + registered + `registered && possessionProven` | script ready (`spike0/01-register.ts`); **blocked on faucet** |
-| 2 unscoped window → deploy → scoped window → call; non-listed refused | script ready (`spike0/03-window-deploy.ts`); blocked on 1 |
-| 3 `pqcVerify` from Solidity valid/tampered | **PASS read-only** (contract context, no override). In-window tx part in `03` |
-| 4 hybrid-signed tx hash | comes from `03` (window open) |
+All hashes are real `qorechain-diana` transactions. Raw output: `docs/spike0/results.json`.
+
+| # | Criterion | Result | Evidence |
+|---|---|---|---|
+| 1 | Funded account, ML-DSA-87 key registered with proof of possession, precompile reports `registered && possessionProven` (alg 1, 2592 B) | PASS (OWNER, SENTINEL, RELAYER) | register txs `1CB02B84CE6CE59751C7EAC9E3B4D2C31B672663CB21B141D37530CD4CCB86DA` (OWNER), `F0B773E10B36C03690A8ACB42688C654B42E52894F3565629F8C6059FF954125` (SENTINEL), `A3B3E2AA7D4A684EFAC7D8C3CCC81364F961472C28B56296A26A78CEEEA1C601` (RELAYER) |
+| 2 | Unscoped window → read nonce → deploy on 9800 → scoped window `allowed_targets=[contract]` → call; non-listed target refused | PASS | unscoped window `9700A1CD2545EA3ED667C530E0C395EFC74F8EEE19D7CDA9CA5AD7165352AB0D`; Spike0 `0x13c334451d0be49530eaa3dcb7aef97700aea82c` deployed in `0xf0fa5ab8926c86186c2205467a735a08e264a62624a8285c1ab1d9917eb189a5` (676,529 gas); scoped window `4DD4B3BB7B8D61D676C5BD0E3E5C98AF7C4BD0185081F4AEF53671D310391CA7`; ping `0x131c7b4638ca52e807efda70742d16ec9eee64919593923424e425550f538497` |
+| 3 | `pqcVerify` from Solidity, valid → true, tampered → false, **inside the scoped window** with only the contract listed | PASS | `checkAndRecord` valid `0x6562426a7a983d28aec49dcdbf7b4162c482262568f429ba218735f184684005` (260,188 gas incl. `pqcKeyStatus` lookup) / tampered `0x6648b0ee38ddf0b5012e1a67d05769193c69a909ce0bc14deb1b0efa3acf6a8a` |
+| 4 | Hybrid-signed tx (secp256k1 + ML-DSA-87) | PASS | `MsgOpenEVMWindow` `9700A1CD2545EA3ED667C530E0C395EFC74F8EEE19D7CDA9CA5AD7165352AB0D`; bank send OWNER→RELAYER `0C4B69C6C271BA255F8CF31BE97BF97C479C6D3C6D766E05737DC10D52E01F8B` |
+
+Findings from the run:
+- **Confirmed live:** the precompile does NOT need to be in `allowed_targets`; internal calls from the listed contract work.
+- **A non-listed recipient is refused with code 27 ("exhausted")**. Raw node text: `the window does not list 0x… as an allowed recipient: EVM authorisation window exhausted`. So `classifyEvmWindowRejection` returns `"exhausted"`. The sentinel must check for `does not list` before treating 27 as real exhaustion, or `ensureWindow()` would loop re-opening windows. viem wraps it as a generic "Missing or invalid parameters"; read the raw JSON-RPC error (`spike0/04-refusal-raw.ts`).
+- A refused (never admitted) tx does **not** consume a window slot (`usedTxs` stayed 3).
+- Window accounting matched `evmWindowCost`: 3 admitted calls used 158,837 uqor of budget at `maxFeePerGas` 225 gwei (2× gas price).
+- **Hybrid Cosmos txs need more gas:** a hybrid MsgSend ran out of gas at 200,000 (`WritePerByte`, 201,211 used; the 4.6 KB signature is stored). Use ≥ 400,000 for sends and 500,000 for window opens. Classical registration used 299,317.
+- Contract creation for a small contract ~677k gas; size windows from `estimateGas × 1.3 × maxFeePerGas`.
