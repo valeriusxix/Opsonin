@@ -1,0 +1,23 @@
+{
+  "name": "@opsonin/sentinel",
+  "version": "0.1.0",
+  "description": "Fleet sentinel: rules engine (pure, shared with the browser offline mode) and the Node service that sends restrict-only quarantine txs.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "@opsonin/sim": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.1"
+  }
+}
