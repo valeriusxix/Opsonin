@@ -14,9 +14,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: gitleaks (full history, pinned CLI)
+        run: |
+          curl -sSL https://github.com/gitleaks/gitleaks/releases/download/v8.18.4/gitleaks_8.18.4_linux_x64.tar.gz | tar xz gitleaks
+          ./gitleaks detect --source . --config .gitleaks.toml --redact --verbose
       - name: No mnemonic-like or key-like strings in tracked files
         run: |
           ! git grep -nIE '(MNEMONIC|PRIVATE_KEY|SECRET_KEY|API_KEY)=[^[:space:]]+' -- ':!*.example' ':!.github/**'
