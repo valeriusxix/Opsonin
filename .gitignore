@@ -18,7 +18,6 @@ keys/
 contracts/out
 contracts/cache
 contracts/broadcast/*/31337
-contracts/lib
 
 # logs / editors
 logs
