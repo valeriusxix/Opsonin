@@ -1,7 +1,8 @@
 # AGENT.md — Opsonin: a Fleet Immune System on QoreChain
 
 > Build brief for the coding agent. Read fully before writing code. Facts marked **[G]** came from a third-party summary of the official docs (pasted by the user, 25 Nov) and were **not independently checked by us**. Anything tagged **[VERIFY]** is unconfirmed. Confirm all of them in Spike 0 against docs.qorechain.io and fix this file if wrong. Never invent chain parameters, RPC URLs, or SDK signatures.
-> Versions as of late Nov 2026 **[G]**: mainnet v3.2.8, testnet v3.2.9, SDK ≈ 0.14.0. The networks upgrade often, so re-check before each build day.
+> **25 Nov update:** §3 facts were checked against the live testnet, the SDK 0.14.0 typings and docs.qorechain.io; sources are in `docs/CHAIN_NOTES.md`. Confirmed `[G]` facts are now marked ✅, corrections ✏️.
+> Versions as of late Nov 2026 ✅: mainnet v3.2.8, testnet v3.2.9 (20 Nov), SDK 0.14.0 (12 Nov). The networks upgrade often, so re-check before each build day.
 
 Product name: **Opsonin** (repo `opsonin`; packages `@opsonin/envelope`, `@opsonin/sentinel`, `@opsonin/sim`). Set in `package.json` and README.
 Team: 2 devs. Today = Wed 25 Nov 2026. **Deadline: Wed 2 Dec 2026 23:59 UTC** (= 00:59 Lagos, Thu 3 Dec). Target submission: **Wed 2 Dec by 12:00 UTC**.
@@ -19,7 +20,7 @@ An **immune system for robot fleets**. Commands to robots are wrapped in PQ-sign
 - The chain is **not in the real-time control loop**. Robots and gateways **cache** the quarantine epoch and decide locally. Block time and finality are irrelevant to safety.
 - The sentinel is **rules-based**. The LLM writes human-readable incident reports only and never decides.
 - The sentinel has **limited authority**: it can quarantine, never release, and is rate-capped per epoch (§5). This is the "agent with a leash" story for the PQ AI Agents track.
-- **Two leashes, stated precisely.** (1) *Chain level:* the sentinel account only works inside a **scoped EVM window** (`allowed_targets=[FleetRegistry]`, small `max_txs` / `max_value`, short `blocks`). Opening or extending a window needs a **hybrid (PQ) signature**, so a thief with only the sentinel's classical EVM key cannot widen its powers, and can at most call `quarantine` until the window runs out. (2) *Contract level:* `quarantine` is restrict-only and rate-capped, and `release` needs the owner's ML-DSA-87 signature. Note the sentinel account itself must have a registered PQ key to be admitted on the EVM lane at all **[G]**.
+- **Two leashes, stated precisely.** (1) *Chain level:* the sentinel account only works inside a **scoped EVM window** (`allowed_targets=[FleetRegistry]`, small `max_txs` / `max_value`, short `blocks`). Opening or extending a window needs a **hybrid (PQ) signature**, so a thief with only the sentinel's classical EVM key cannot widen its powers, and can at most call `quarantine` until the window runs out. (2) *Contract level:* `quarantine` is restrict-only and rate-capped, and `release` needs the owner's ML-DSA-87 signature. Note the sentinel account itself must have a registered PQ key to be admitted on the EVM lane at all ✅.
 
 ### Honest limits (put these in the README, do not hide them)
 1. Robots are **simulated**. No physical hardware in the demo.
@@ -32,22 +33,24 @@ An **immune system for robot fleets**. Commands to robots are wrapped in PQ-sign
 
 ## 2. Hard constraints and submission checklist
 
-- [ ] Public repo, **MIT or Apache-2.0**, with README, a **featured image (16:9, ≥ 1200×675)**, a **≤3-minute video**, and the **testnet address(es)** **[G]**.
-- [ ] **At least one hybrid-signed tx** on `qorechain-diana` (secp256k1 + ML-DSA-87) shown in the README and the video, with a tx hash.
+- [ ] Public repo, **Apache-2.0** (decided 25 Nov), with README, a **featured image (16:9, ≥ 1200×675, JPG/PNG/WebP ≤ 5 MB)**, a **≤3-minute video**, and at least one **`qor1` testnet address** ✅.
+- [ ] `AI_USAGE.md` (required for the Best AI-Native award) ✏️.
+- [ ] QCAI reports in `docs/audit/` + `docs/AUDIT.md` ✏️.
+- [ ] **At least one hybrid-signed tx** on `qorechain-diana` (secp256k1 + ML-DSA-87) shown in the README and the video, with a tx hash. ✏️ Formally required only for the Quantum Pass; we keep it. Every `MsgOpenEVMWindow` we send is one.
 - [ ] Contract deployed on testnet; address in README.
-- [ ] QCAI audit run (dashboard.qorechain.io). The PQ dApp category lists a **two-stage QCAI audit** **[G]**; run both stages and keep the contract small so it passes cleanly.
+- [ ] QCAI audit run (dashboard.qorechain.io). The PQ dApp category lists a **two-stage QCAI audit** ✅; run both stages and keep the contract small so it passes cleanly.
 - [ ] Live demo URL (static host: Vercel, Netlify or Cloudflare Pages). It must work on mobile and desktop.
 - [ ] README states the honest limits (§1).
-- [ ] Timeline **[G]**: checks run 3-5 Dec, then the jury scores against a per-category rubric. Finalists may get a **48-hour change request**, so keep the repo and demo live after submitting. Numeric rubrics are **not public**, so score ourselves against the category lines below.
-- [ ] Special awards (People's Choice, Best AI-Native, Top-Quality ≥ 70/100, Q-Day Survivor, etc.) have their own rules. Re-read the event page **[VERIFY]**.
+- [ ] Timeline ✅: checks 3-5 Dec, judging + People's Choice 6-15 Dec, winners 16 Dec. Finalists may get a **48-hour change request**, so keep the repo and demo live after submitting. ✏️ Rubric weights are public: works as described 25 %, QoreChain tech 25 %, PQ correctness 20 %, originality 15 %, clarity/UX/docs 15 %.
+- [ ] Special awards ✏️: People's Choice (QoreX mainnet vote), Best AI-Native (needs `AI_USAGE.md`), Top-Quality ≥ 70/100 (non-winners only). **Q-Day Survivor is closed** (drill was 18 Nov).
 
-### Rubric lines we must visibly hit (Post-Quantum AI Agents, 1-4 people) **[G]**
+### Rubric lines we must visibly hit (Post-Quantum AI Agents, 1-4 people) ✅
 | Requirement | Where we satisfy it |
 |---|---|
 | Scoped EVM window with tx / value / duration / target limits | Sentinel account window: `max_txs`, `max_value`, `blocks`, `allowed_targets=[FleetRegistry]`. Show the window query output in the README and the UI |
-| Smart-account spending rules | Sentinel runs as a smart account with a **spending-rule cap** (account-abstraction docs; confirm the exact msg/API in Spike 0 **[VERIFY]**). If it cannot be done, say so in the README |
+| Smart-account spending rules | Sentinel runs as a smart account with a **spending-rule cap** ✅ exists on testnet: `MsgUpdateSpendingRules{daily_limit, per_tx_limit, allowed_denoms, allowed_evm_calls, denom_limits}` + `MsgExecuteEVM` (which does **not** use the EVM window). Wiring decided after Spike 0 (CHAIN_NOTES). If it cannot be done, say so in the README |
 | Authenticated messaging | PQ-signed command **envelopes** (§5.2) |
-Also cover the PQ dApp lines, since we use them anyway: `pqcVerify` in a contract, QCAI two-stage audit, Foundry/Hardhat tests.
+Also cover the PQ dApp lines, since we use them anyway: scoped EVM window, `pqcVerify` in a contract, QCAI two-stage audit, Foundry/Hardhat tests.
 
 ---
 
@@ -57,30 +60,30 @@ Also cover the PQ dApp lines, since we use them anyway: `pqcVerify` in a contrac
 |---|---|
 | Testnet | `qorechain-diana` |
 | Signatures | Hybrid: **secp256k1 + ML-DSA-87** (required on Cosmos lane). Also ML-KEM-1024, SHAKE-256 |
-| VMs | EVM **live**. CosmWasm upload **disabled**. SVM tx lane **disabled**. → **Build on EVM (Solidity).** |
-| `pqcVerify` precompile | `0x0000000000000000000000000000000000000a01` (25,000 gas + 8/byte) |
+| VMs | EVM **live** ✅. CosmWasm upload **disabled** ✅. SVM ✏️: opened on testnet by prop 37 but the public gateway refuses sends; irrelevant to us. → **Build on EVM (Solidity).** |
+| `pqcVerify` precompile | `0x0000000000000000000000000000000000000a01` (25,000 gas + 8/byte) ✅ active on testnet since prop 21, **not active on mainnet**. ML-DSA-87 only, no algorithm arg |
 | `pqcKeyStatus` precompile | `0x0000000000000000000000000000000000000a02` (2,500 gas) |
 | EVM lane requirement | A **registered ML-DSA key** and an **open EVM authorisation window** (can be scoped) |
 | Scoped window | `allowed_targets` (≤ 16), `max_txs`, `max_value`. **Refuses contract creation.** **Opening one changes the nonce.** See the window section below |
-| Signed bytes for **Cosmos-lane txs** | v2 hybrid sign-bytes (below). The SDK picks the right form when given the REST endpoint **[G]** |
-| Signed bytes for **our own in-contract messages** (release approval) | Our own framing (§5.1). The Conclave example used `"qorechain-msg-v1|qorechain-diana|" + message`. Confirm in Spike 0 that `pqcSign` output passes the `pqcVerify` precompile |
-| Cosmos chain ID / EVM chain ID | `qorechain-diana` / **9800 (0x2648)** **[G]** (mainnet: `qorechain-vladi` / 9801) |
-| EVM JSON-RPC | `https://evm-testnet.qore.host` **[G]** |
-| EVM WebSocket (testnet only) | `wss://evm-ws-testnet.qore.host` **[G]**. Use it to subscribe to `Quarantined` / `Released` events |
-| Consensus RPC / REST (LCD) | `https://rpc-testnet.qore.host` / `https://api-testnet.qore.host` **[G]** |
-| Explorer | `https://explore.qore.network` (toggle to Testnet) **[G]** |
-| Faucet | `https://dashboard.qorechain.io/faucet`: sign-in required, ~100 QOR per address per 24 h, testnet only **[G]**. Claim early and from every team address |
-| Native token | QOR. Base `uqor` (6 decimals) on Cosmos. EVM shows 18 decimals (`aqor`) **[G]** |
+| Signed bytes for **Cosmos-lane txs** | v2 hybrid sign-bytes (below). The SDK picks the right form when given the REST endpoint ✅ (`EthNativeSigner` with `rest`, retries once on pqc code 21) |
+| Signed bytes for **our own in-contract messages** (release approval) | ✏️ **Raw bytes.** SDK `pqcSign(sk, msg)` adds no prefix and the precompile verifies the raw message ✅ [LIVE 25 Nov, also from contract context]. `qorechain-msg-v1|…` belongs to QoreX `signArbitrary` only. We use our own domain-tagged framing (§5.1) |
+| Cosmos chain ID / EVM chain ID | `qorechain-diana` / **9800 (0x2648)** ✅ [LIVE] (mainnet: `qorechain-vladi` / 9801) |
+| EVM JSON-RPC | `https://evm-testnet.qore.host` ✅ [LIVE]. Rate limit 1,200 req/60 s/IP; send a User-Agent |
+| EVM WebSocket (testnet only) | `wss://evm-ws-testnet.qore.host` ✅ [SDK]. Use it to subscribe to `Quarantined` / `Released` events |
+| Consensus RPC / REST (LCD) | `https://rpc-testnet.qore.host` / `https://api-testnet.qore.host` ✅ [LIVE] |
+| Explorer | `https://explore.qore.network` (toggle to Testnet) ✅. Tx URL path **[VERIFY]**. No source verification |
+| Faucet | `https://dashboard.qorechain.io/faucet`: sign-in required ✅, **100 QOR once per 24 h per account and per address**, `qor1…` only, no API. Fund OWNER, register it, then distribute with `scripts/setup/fund.ts` |
+| Native token | QOR. Base `uqor` (6 decimals) on Cosmos. EVM shows 18 decimals (`aqor`), 1 uqor = 10^12 wei ✅ |
 | Judging | Per-category jury rubric, numbers unpublished. See §2 |
 
-### EVM authorization window **[G]**
+### EVM authorization window ✅ (docs + SDK; live run in Spike 0)
 - Since v3.2.0, an EVM-lane tx (MetaMask, viem, Hardhat, Foundry) is admitted only if the sender has (1) a registered ML-DSA-87 key and (2) an **open, unexhausted window**.
 - **Open:** Cosmos message `/qorechain.pqc.v1.MsgOpenEVMWindow`, **hybrid-signed** by the account (classical alone cannot open one). It **replaces** any existing window and **advances the nonce** (Cosmos sequence = EVM nonce). **Order: open window → read nonce → sign the EVM tx.**
 - **Bounds (all required):** `blocks` 1-17,280 (≈ **5-6 h on testnet**, ≈ 15 h mainnet) · `max_txs` 1-1,000 · `max_value` > 0 in `uqor`, counting transferred value **plus** the max fee (gas limit × fee cap) of every admitted tx.
 - **Optional scoping:** `native_only`; `allowed_targets` (≤ 16 unique addresses, which also blocks contract creation); later lists `validators`, `staking_validators`, `ibc_receivers` (v3.2.8).
 - Any bound reaching zero ends the window. **Failed txs still consume a slot and budget.** Close with `MsgCloseEVMWindow`. Query: `qorechaind query pqc evm-window <addr>` or `GET /qorechain/pqc/v1/evm_window/{address}`.
 - Errors (codespace `pqc`): **26** no window / no usable PQ key · **27** exhausted · **28** invalid bounds. The SDK's `classifyEvmWindowRejection` maps them.
-- Precompiles and EIP-7702 have **extra rules**, and windows cover classical EVM-lane txs only **[VERIFY how a contract's internal call to `0x…0a01` is treated and whether the precompile address must be in `allowed_targets`]**.
+- Precompiles and EIP-7702 have **extra rules**, and windows cover classical EVM-lane txs only. ✏️ `allowed_targets` is checked against the **tx recipient only**; a contract's internal calls to `0x…0a01/0a02` are not checked, so list only `FleetRegistry` (fest FAQ; live check in `spike0/03`). Standard precompile methods (staking, ICS-20, …) are deny-by-default through a window.
 - **Consequences for this build**
   1. **Deploy under an *unscoped* window** (bounds only), because scoped windows refuse contract creation. Then open the **scoped** window for the sentinel (`allowed_targets=[FleetRegistry]`).
   2. Windows last ~5-6 h on testnet, so a hosted always-on sentinel will lose its ability to send. Implement `ensureWindow()` in the sentinel (query → re-open with the sentinel's PQ key when low), and size `max_value` for the *fee* budget of batched quarantines. For recording, open a fresh window right before. For the public demo, degrade to **offline replay** when the window is exhausted.
@@ -100,7 +103,8 @@ address constant PQC_KEY_STATUS = 0x0000000000000000000000000000000000000a02;
 ```
 **Gotchas**
 - An inactive precompile returns empty data (`0x`) **without reverting**. Use low-level `staticcall` and require `ret.length >= 96` (key status) or a decoded `true` (verify). A high-level call to a dead precompile can fail open, so never trust it blindly.
-- Trust a key only if **`registered && possessionProven`**.
+- Trust a key only if **`registered && possessionProven`** (and `algorithmId == 1`, pubkey 2592 B). ✏️ `possessionProven` is set only if a proof of possession was sent **at registration** and cannot be added later, so always register with `signProofOfPossession`. The `@qorechain/evm` ABI drops this 4th output; do not use it for trust decisions.
+- ✏️ `eth_call` with a state override sees the precompiles as **inactive**. Do not test precompile paths with overrides.
 - ML-DSA-87 sizes (FIPS 204): public key 2592 B, signature 4627 B. Calldata is large, so budget gas and test with real sizes.
 
 ### Key registration (docs)
@@ -111,16 +115,16 @@ qorechaind tx pqc register-key-v2 dilithium5 <pubkey-hex> hybrid \
   --gas 600000 --fees 60000uqor -y
 ```
 
-### SDK (≈ 0.14.0) **[G]**, confirm signatures with `npm view` and the package typings
+### SDK 0.14.0 ✅ (signatures read from the typings, 25 Nov)
 | Package | Use |
 |---|---|
 | `@qorechain/sdk` | Messages, hybrid signing, queries. `generatePqcKeypair`, `pqcSign`, `pqcVerify`, `ensurePqcRegistered`, `derivePqcCanonical`, `openEvmWindowMsg({ sender, blocks, maxTxs, maxValue, ... })`, `signAndBroadcastHybrid`, `fetchEvmWindow`, `classifyEvmWindowRejection`. **It never auto-opens a window**, so open it explicitly |
-| `@qorechain/evm` + `viem` | viem adapter and chain defs `qorechainTestnet`. EVM client factory. `precompiles.pqcKeyStatus(client.publicClient, account)` (from docs) |
+| `@qorechain/evm` + `viem` | viem adapter; `qorechainTestnet` lives **here** ✏️ (its viem types clash with ours, so we `defineChain` from config). `@qorechain/evm/window`: `evmWindowCost`, `evmWindowStatus`. Precompile helpers **throw** when inactive |
 | `@qorechain/react` | React hooks / components (optional) |
 | Other languages | Python `qorechain-sdk` (`import qorsdk`), Rust, Go, Java exist. We use TypeScript only |
-Earlier docs also mentioned `@qorechain/wallet-adapter` (`generateQoreWallet()`, `signHybridEth`) and `migrateToHybrid`. **[VERIFY]** they still exist. Use viem, not ethers, for the EVM side.
+✏️ `@qorechain/wallet-adapter` 0.6.0 exists (Keplr/Leap hybrid layer); `signHybridEth` and `migrateToHybrid` are in `@qorechain/sdk`. Accounts: `deriveUnifiedAccount(mnemonic)` (eth_secp256k1, coin 60); native-lane signing via `EthNativeSigner(account, { rest, signMode })`. Note SDK `pqcVerify(publicKey, message, signature)` argument order differs from the precompile. Use viem, not ethers, for the EVM side.
 
-### Hybrid sign-bytes for Cosmos-lane txs (v2, both networks) **[G]**
+### Hybrid sign-bytes for Cosmos-lane txs (v2, both networks) ✅
 `"qorechain-pqc-hybrid-v2" ‖ BE64(len(chainID)) ‖ chainID ‖ BE32(len(B0)) ‖ B0 ‖ BE32(len(authInfo)) ‖ authInfo` (B0 = TxBody without the PQC extension, lengths big-endian, no final hashing). The ML-DSA-87 signature (4627 B) goes into the `/qorechain.pqc.v1.PQCHybridSignature` extension (`algorithm_id: 1`). The classical signature covers the standard SignDoc. **Do not hand-roll this**: use `signAndBroadcastHybrid`. This matters only to know why the hybrid tx is the one to show the judges.
 
 ---
@@ -169,7 +173,7 @@ Functions:
 - `enroll(bytes32[] ids)`: owner only (classical `msg.sender == owner` is fine for enrol).
 - `quarantine(bytes32[] ids, bytes32 reasonHash)`: `onlySentinel`, restrict-only, batched to save txs, rate-capped.
 - `release(bytes32[] ids, bytes calldata pqSig)`: **anyone may relay**. Authorised only if `pqcVerify(ownerPubkey, pqSig, msg)` is true, where `ownerPubkey` comes from `pqcKeyStatus(owner)` and requires `registered && possessionProven`.
-  - `msg = keccak/SHAKE-style hash of: domain "FLEET_RELEASE_V1" ‖ chainId ‖ address(this) ‖ ids ‖ ownerNonce ‖ epoch`. Bind chain, contract and nonce to prevent replay. If the SDK signs a prefixed message (`qorechain-msg-v1|qorechain-diana|…`), reproduce that exact framing **[VERIFY in Spike 0]**.
+  - `msg = keccak/SHAKE-style hash of: domain "FLEET_RELEASE_V1" ‖ chainId ‖ address(this) ‖ ids ‖ ownerNonce ‖ epoch`. Bind chain, contract and nonce to prevent replay. ✏️ The SDK signs raw bytes (no prefix) and the precompile verifies raw bytes ✅, so the contract rebuilds exactly these bytes. Open design point: including `epoch` makes a signed release go stale whenever the sentinel quarantines anything in between; decide on Fri whether to drop it (nonce + chain + contract already prevent replay).
   - Increment `ownerNonce`. Emit `Released`.
 - `setSentinel(address, bytes pqSig)`: PQ-gated rotation (so a stolen sentinel key can be replaced only by the PQ key).
 - Views: `isQuarantined(id)`, `fleetState(bytes32[] ids)`, `epoch()`.
@@ -290,7 +294,7 @@ The sentinel account is a smart account with a **spending-rule cap** (rubric lin
 - Seek one design partner (robotics club, warehouse-automation startup, university lab).
 
 **Funding / ecosystem**
-- Apply to any follow-on grants or programmes announced for fest builders (the event material mentions a **January 2027** window **[VERIFY terms]**).
+- Apply to any follow-on grants or programmes announced for fest builders ✅ paid in QOR against milestones, from **January 2027**.
 - **Mainnet path:** when the PQ precompiles are active on mainnet, re-deploy via `scripts/deploy` with a chain config. Keep chain parameters in config only, never in code.
 - Write up the **threat model and the restrict-only / PQ-release pattern** as a short public spec so others can adopt it. A standard pattern is a stronger long-term asset than the demo.
 
